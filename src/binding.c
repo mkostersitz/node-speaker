@@ -45,11 +45,26 @@ napi_value speaker_open(napi_env env, napi_callback_info info) {
   memset(speaker, 0, sizeof(Speaker));
   audio_output_t *ao = &speaker->ao;
 
-  assert(napi_get_value_int32(env, args[0], &ao->channels) == napi_ok); /* channels */
+  // assert(napi_get_value_int32(env, args[0], &ao->channels) == napi_ok); /* channels */
+  int32_t channels;
+  napi_status status = napi_get_value_int32(env, args[0], &channels);
+  if (status != napi_ok) {
+    napi_throw_type_error(env, NULL, "First argument must be an integer (channels)");
+    return NULL;
+  }
+ao->channels = channels;
   int32_t _rate;
-  assert(napi_get_value_int32(env, args[1], &_rate) == napi_ok); /* sample rate */
+  status = napi_get_value_int32(env, args[1], &_rate);
+  if (status != napi_ok) {
+    napi_throw_type_error(env, NULL, "Second argument must be an integer (sample rate)");
+    return NULL;
+  }
   ao->rate = _rate;
-  assert(napi_get_value_int32(env, args[2], &ao->format) == napi_ok); /* MPG123_ENC_* format */
+  status = napi_get_value_int32(env, args[2], &ao->format);
+  if (status != napi_ok) {
+    napi_throw_type_error(env, NULL, "Third argument must be an integer (format)");
+    return NULL;
+  }
 
   if (is_string(env, args[3])) {
     size_t device_string_size;
